@@ -69,20 +69,18 @@
         discovery.type: single-node
       ulimits:
         - memlock:-1:-1
-      ports:
-        - "9200:9200"
       volumes:
         - esdata:/usr/share/elasticsearch/data
       network_mode: host
 
+  - pause:
+      seconds: 30
 
   - name: Start kibana
     docker_container:
       name: kibana
       image: kibana
       hostname: kibana
-      ports:
-        - "5601:5601"
       network_mode: host
 
         
@@ -101,6 +99,9 @@
       image: logstash
       hostname: logstash
       network_mode: host
+
+  - pause:
+      minutes: 2
 
   - name: Start elastaelert
     docker_container:
