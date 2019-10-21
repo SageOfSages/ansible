@@ -1,0 +1,110 @@
+---
+- name: Build images
+  hosts: all
+  gather_facts: false
+  tasks:
+  - name: Build image for ES
+    docker_image:
+      build:
+        path: Elastic
+        dockerfile: Dockerfile
+      name: elasticsearch
+      source: build
+      force_source: yes
+      
+  - name: Build image for logstash
+    docker_image:
+      build:
+        path: Logstash
+        dockerfile: Dockerfile
+      name: logstash
+      source: build
+      force_source: yes
+      
+  - name: Build image for ES
+    docker_image:
+      build:
+        path: Kibana
+        dockerfile: Dockerfile
+      name: kibana
+      source: build
+      force_source: yes
+      
+      
+  - name: Build image for filebeat
+    docker_image:
+      build:
+        path: Filebeat
+        dockerfile: Dockerfile
+      name: filebeat
+      source: build
+      force_source: yes
+      
+  - name: Build image for elastalert
+    docker_image:
+      build:
+        path: ElastAlert
+        dockerfile: Dockerfile
+      name: elastalert
+      source: build
+      force_source: yes
+
+
+- name: Run containers
+  hosts: all
+  gather_facts: false
+  tasks:
+
+
+  - name: Create volume for elastic
+    docker_volume:
+      name: esdata
+
+  - name: Start elasticsearch
+    docker_container:
+      name: elasticsearch
+      image: elasticsearch
+      hostname: elasticsearch
+      env:
+        discovery.type: single-node
+      ulimits:
+        - memlock:-1:-1
+      ports:
+        - "9200:9200"
+      volumes:
+        - esdata:/usr/share/elasticsearch/data
+      network_mode: host
+
+
+  - name: Start kibana
+    docker_container:
+      name: kibana
+      image: kibana
+      hostname: kibana
+      ports:
+        - "5601:5601"
+      network_mode: host
+
+        
+  - name: Start filebeat
+    docker_container:
+      volumes:
+        - /home/alex/GearGames/ansible/Log/:/var/work/filebeat/Log/
+      name: filebeat
+      image: filebeat
+      hostname: filebeat
+      network_mode: host
+
+  - name: Start logstash
+    docker_container:
+      name: logstash
+      image: logstash
+      hostname: logstash
+      network_mode: host
+
+  - name: Start elastaelert
+    docker_container:
+      name: elastalert
+      image: elastalert
+      hostname: elastalert
+      network_mode: host

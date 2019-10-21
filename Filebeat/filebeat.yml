@@ -1,0 +1,10 @@
+filebeat.inputs:
+  - type: log
+  # путь откуда брать лог файл для теста
+    paths:
+        - "/var/work/filebeat/Log/test.log"
+
+# порт куда нужно отправлять лог файл
+output:
+    logstash:
+        hosts: ["localhost:5044"]
